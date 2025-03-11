@@ -17,24 +17,16 @@
 <hr />
 
 <p align="center">
-    <a href="https://sfu.mirotalk.com/">Explore MiroTalk SFU</a>
+    <a href="https://wave.hbqnexus.win/">Explore Free video Calls</a>
 </p>
 
 <hr />
 
 <p align="center">
-    <a href="https://sfu.mirotalk.com/">
+    <a href="https://wave.hbqnexus.win/">
         <img src="public/images/mirotalksfu-header.gif">
     </a>
 </p>
-
-<hr />
-
-<strong>
-    <p align="center">
-        Join our Community for questions, help, support, ideas, and discussions on <a href='https://discord.gg/rgGYfeYW3N'>Discord</a>
-    </p>
-</strong>
 
 <hr />
 
@@ -306,151 +298,6 @@ $ curl -X POST "https://sfu.mirotalk.com/api/v1/token" -H "authorization: mirota
 
 </details>
 
-<details open>
-<summary>Hetzner, Hostinger & Contabo</summary>
-
-<br/>
-
-[![Hetzner](public/sponsors/Hetzner.png)](https://hetzner.cloud/?ref=XdRifCzCK3bn)
-
-This application is running for `demonstration purposes` on [Hetzner](https://www.hetzner.com/), one of `the best` [cloud providers](https://www.hetzner.com/cloud) and [dedicated root servers](https://www.hetzner.com/dedicated-rootserver).
-
----
-
-Use [my personal link](https://hetzner.cloud/?ref=XdRifCzCK3bn) to receive `€⁠20 IN CLOUD CREDITS`.
-
----
-
-[![Hostinger](public/advertisers/HostingerLogo.png)](https://hostinger.com/?REFERRALCODE=MIROTALK)
-
-Fast, reliable hosting with 24/7 support and great performance. Start today! [Check out Hostinger now](https://hostinger.com/?REFERRALCODE=MIROTALK)
-
----
-
-[![Contabo](public/advertisers/ContaboLogo.png)](https://www.dpbolvw.net/click-101027391-14462707)
-
-Experience also top-tier German web hosting – dedicated servers, VPS, and web hosting at `unbeatable prices`. [Explore now here](https://www.dpbolvw.net/click-101027391-14462707)
-
----
-
-To set up your own instance of `MiroTalk SFU` on a dedicated cloud server, please refer to our comprehensive [self-hosting documentation](https://docs.mirotalk.com/mirotalk-sfu/self-hosting/). This guide will walk you through the process step by step, ensuring a smooth and successful deployment.
-
-</details>
-
-<details>
-<summary>Live Demo</summary>
-
-<br/>
-
-<a target="_blank" href="https://hetzner.cloud/?ref=XdRifCzCK3bn"><img src="public/sponsors/Hetzner.png" style="width: 220px;"></a>
-
-https://sfu.mirotalk.com
-
-[![mirotalksfu-qr](public/images/mirotalksfu-qr.png)](https://sfu.mirotalk.com/)
-
-</details>
-
-<details>
-<summary>Credits</summary>
-
-<br/>
-
-- [Davide Pacilio](https://cruip.com/demos/solid/) (html template)
-- [Dirk Vanbeveren](https://github.com/Dirvann) (sfu logic)
-- [Mediasoup](https://mediasoup.org) (sfu server)
-
-</details>
-
-<details>
-<summary>Contributing</summary>
-
-<br/>
-
-- Contributions are welcome and greatly appreciated!
-- Just run before `npm run lint`
-
-</details>
-
-<details>
-<summary>License</summary>
-
-<br/>
-
-[![AGPLv3](public/images/AGPLv3.png)](LICENSE)
-
-MiroTalk SFU is free and open-source under the terms of AGPLv3 (GNU Affero General Public License v3.0). Please `respect the license conditions`, In particular `modifications need to be free as well and made available to the public`. Get a quick overview of the license at [Choose an open source license](https://choosealicense.com/licenses/agpl-3.0/).
-
-To obtain a [MiroTalk SFU license](https://docs.mirotalk.com/license/licensing-options/) with terms different from the AGPLv3, you can conveniently make your [purchase on CodeCanyon](https://codecanyon.net/item/mirotalk-sfu-webrtc-realtime-video-conferences/40769970). This allows you to tailor the licensing conditions to better suit your specific requirements.
-
-</details>
-
-<details open>
-<summary>Support the project</summary>
-
-<br/>
-
-Do you find MiroTalk SFU indispensable for your needs? Join us in supporting this transformative project by [becoming a backer or sponsor](https://github.com/sponsors/miroslavpejic85). By doing so, not only will your logo prominently feature here, but you'll also drive the growth and sustainability of MiroTalk SFU. Your support is vital in ensuring that this valuable platform continues to thrive and remain accessible for all. Make an impact – back MiroTalk SFU today and be part of this exciting journey!
-
-|                                                                                                                           |                                                                                        |
-| ------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| [![BroadcastX](public/sponsors/BroadcastX.png)](https://broadcastx.de/)                                                   | [![Hetzner](public/sponsors/HetznerLogo.png)](https://hetzner.cloud/?ref=XdRifCzCK3bn) |
-| [![LuvLounge](public/sponsors/LuvLounge.png)](https://luvlounge.ca)                                                       | [![QuestionPro](public/sponsors/QuestionPro.png)](https://www.questionpro.com)         |
-| [![BrowserStack](public/sponsors/BrowserStack.png)](https://www.browserstack.com)                                         | [![CrystalSound](public/sponsors/CrystalSound.png)](https://crystalsound.ai)           |
-| [![Cloudron](public/sponsors/Cloudron.png)](https://cloudron.io)                                                          | [![Kiquix](public/sponsors/KiquixLogo.png)](https://kiquix.com)                        |
-| [![LambdaTest](public/sponsors/LambdaTest.png)](https://lambdatest.com/pricing?coupon=QURFODlQUk9NT1RFUg==&refid=1149848) |                                                                                        |
-
-</details>
-
-<details open>
-<summary>Advertisers</summary>
-
----
-
-|                                                                                                |                                                                                                |
-| ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| [![Hostinger](public/advertisers/Hostinger.png)](https://hostinger.com/?REFERRALCODE=MIROTALK) | [![Contabo](public/advertisers/Contabo.png)](https://www.dpbolvw.net/click-101027391-14462707) |
-
----
-
-</details>
-
-## Diving into Additional MiroTalk Projects:
-
-<details>
-<summary>MiroTalk P2P</summary>
-
-<br/>
-
-Try also [MiroTalk P2P](https://github.com/miroslavpejic85/mirotalk) `peer to peer` real-time video conferences, optimized for small groups. `Unlimited time, unlimited concurrent rooms` each having 5-8 participants.
-
-</details>
-
-<details>
-<summary>MiroTalk C2C</summary>
-
-<br>
-
-Try also [MiroTalk C2C](https://github.com/miroslavpejic85/mirotalkc2c) `peer to peer` real-time video conferences, optimized for cam 2 cam. `Unlimited time, unlimited concurrent rooms` each having 2 participants.
-
-</details>
-
-<details>
-<summary>MiroTalk BRO</summary>
-
-<br>
-
-Try also [MiroTalk BRO](https://github.com/miroslavpejic85/mirotalkbro) `Live broadcast` (peer to peer) live video, audio and screen stream to all connected users (viewers). `Unlimited time, unlimited concurrent rooms` each having a broadcast and many viewers.
-
-</details>
-
-<details>
-<summary>MiroTalk WEB</summary>
-
-<br>
-
-Try also [MiroTalk WEB](https://github.com/miroslavpejic85/mirotalkwebrtc) a platform that allows for the management of an `unlimited number of users`. Each user must register with their email, username, and password, after which they gain access to their `personal dashboard`. Within the dashboard, users can `manage their rooms and schedule meetings` using the desired version of MiroTalk on a specified date and time. Invitations to these meetings can be sent via email, shared through the web browser, or sent via SMS.
-
-</details>
 
 ---
 
