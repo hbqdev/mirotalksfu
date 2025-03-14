@@ -1,452 +1,144 @@
 #!/bin/bash
 
+# MiroTalk SFU Service Manager
+# A clean, focused tool for managing your MiroTalk SFU instance
+
 APP_PATH="/home/nightfury/selfhosted/mirotalksfu"
 SERVICE_NAME="mirotalksfu"
 HOSTNAME="meet.hbqnexus.win"
 PORT=3055
 
-# Colors for better UI
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[0;33m'
-BLUE='\033[0;34m'
-PURPLE='\033[0;35m'
-CYAN='\033[0;36m'
-NC='\033[0m' # No Color
+# ====================================
+# Utility Functions
+# ====================================
 
-function show_usage() {
-    echo -e "\n${BLUE}=== MiroTalk SFU Service Manager ===${NC}"
-    PS3=$'\n'"${CYAN}Select an option:${NC} "
-    options=(
-        "🟢 Start service"
-        "🔴 Stop service"
-        "🔄 Restart service"
-        "ℹ️  Show status"
-        "⚙️  Configure SFU"
-        "🚀 Optimize performance"
-        "🖥️  Hardware acceleration"
-        "📋 Show logs"
-        "🔍 Diagnostics"
-        "🔧 Edit service file"
-        "📊 Resource usage"
-        "🔒 Security check"
-        "🔙 Exit"
-    )
-    select opt in "${options[@]}"
-    do
-        case $opt in
-            "🟢 Start service")
-                sudo systemctl start $SERVICE_NAME
-                show_status
-                break
-                ;;
-            "🔴 Stop service")
-                sudo systemctl stop $SERVICE_NAME
-                show_status
-                break
-                ;;
-            "🔄 Restart service")
-                sudo systemctl restart $SERVICE_NAME
-                show_status
-                break
-                ;;
-            "ℹ️  Show status")
-                show_status
-                break
-                ;;
-            "⚙️  Configure SFU")
-                configure_sfu_menu
-                break
-                ;;
-            "🚀 Optimize performance")
-                optimize_performance_menu
-                break
-                ;;
-            "🖥️  Hardware acceleration")
-                setup_hardware_acceleration
-                break
-                ;;
-            "📋 Show logs")
-                show_logs_menu
-                break
-                ;;
-            "🔍 Diagnostics")
-                run_diagnostics
-                break
-                ;;
-            "🔧 Edit service file")
-                edit_service_file
-                break
-                ;;
-            "📊 Resource usage")
-                show_resource_usage
-                break
-                ;;
-            "🔒 Security check")
-                run_security_check
-                break
-                ;;
-            "🔙 Exit")
-                echo -e "\n${GREEN}Goodbye! 👋${NC}"
-                exit 0
-                ;;
-            *) 
-                echo -e "${RED}Invalid option${NC}"
-                ;;
-        esac
-    done
+print_header() {
+    clear
+    echo "=============================================="
+    echo "     MiroTalk SFU - Service Manager     "
+    echo "=============================================="
+    echo ""
 }
 
-function configure_sfu_menu() {
-    echo -e "\n${BLUE}=== Configure MiroTalk SFU ===${NC}"
-    PS3=$'\n'"${CYAN}Select a configuration option:${NC} "
+show_status() {
+    echo -e "\n=== Service Status ==="
+    systemctl status $SERVICE_NAME --no-pager
+    echo -e "\nPress Enter to continue..."
+    read
+}
+
+# ====================================
+# Core Service Functions
+# ====================================
+
+start_service() {
+    echo "🟢 Starting MiroTalk SFU service..."
+    sudo systemctl start $SERVICE_NAME
+    echo "✅ Service started!"
+    show_status
+}
+
+stop_service() {
+    echo "🔴 Stopping MiroTalk SFU service..."
+    sudo systemctl stop $SERVICE_NAME
+    echo "✅ Service stopped!"
+    show_status
+}
+
+restart_service() {
+    echo "🔄 Restarting MiroTalk SFU service with latest updates..."
+    
+    # Navigate to app directory
+    cd $APP_PATH
+    
+    # Stop the service
+    sudo systemctl stop $SERVICE_NAME
+    
+    # Get the current branch
+    CURRENT_BRANCH=$(git branch --show-current)
+    echo "📌 Current branch: $CURRENT_BRANCH"
+    
+    # Pull the latest changes
+    echo "📥 Pulling latest updates from git..."
+    git pull
+    
+    # Install any new dependencies
+    echo "📦 Checking for new dependencies..."
+    npm install
+    
+    # Start the service again
+    sudo systemctl start $SERVICE_NAME
+    
+    echo "✅ Service restarted with latest updates!"
+    show_status
+}
+
+view_logs() {
+    echo -e "\n=== MiroTalk SFU Logs ==="
+    PS3=$'\n'"Select a log option: "
     options=(
-        "Basic settings"
-        "Codec settings"
-        "Screen sharing settings"
-        "WebRTC transport settings"
+        "Recent logs (last 50 entries)"
+        "Error logs only"
+        "Live log follow (Ctrl+C to exit)"
         "Return to main menu"
     )
     select opt in "${options[@]}"
     do
         case $opt in
-            "Basic settings")
-                configure_basic_settings
+            "Recent logs (last 50 entries)")
+                sudo journalctl -u $SERVICE_NAME -n 50 --no-pager
                 break
                 ;;
-            "Codec settings")
-                configure_codec_settings
+            "Error logs only)")
+                sudo journalctl -u $SERVICE_NAME -p err -n 50 --no-pager
                 break
                 ;;
-            "Screen sharing settings")
-                configure_screen_sharing
-                break
-                ;;
-            "WebRTC transport settings")
-                configure_webrtc_transport
+            "Live log follow (Ctrl+C to exit)")
+                echo "⚠️ Press Ctrl+C to stop following logs"
+                sleep 2
+                sudo journalctl -u $SERVICE_NAME -f
                 break
                 ;;
             "Return to main menu")
                 break
                 ;;
             *)
-                echo -e "${RED}Invalid option${NC}"
+                echo "❌ Invalid option"
                 ;;
         esac
     done
+    
+    echo -e "\nPress Enter to continue..."
+    read
 }
 
-function configure_basic_settings() {
-    echo -e "${BLUE}Configuring basic MiroTalk SFU settings...${NC}"
+# ====================================
+# Setup Functions
+# ====================================
+
+setup_service() {
+    echo -e "\n=== Setting up MiroTalk SFU Service ==="
     
-    # Check if config.js exists, if not copy from template
-    if [ ! -f "$APP_PATH/app/src/config.js" ]; then
-        echo -e "${YELLOW}Creating config.js from template...${NC}"
-        cp "$APP_PATH/app/src/config.template.js" "$APP_PATH/app/src/config.js"
+    # Check if service already exists
+    if systemctl list-unit-files | grep -q "$SERVICE_NAME"; then
+        echo "⚠️ Service already exists. Do you want to overwrite it? (y/n)"
+        read overwrite
+        if [[ "$overwrite" != "y" ]]; then
+            echo "🛑 Setup cancelled."
+            return
+        fi
     fi
     
-    # Set port and hostname
-    echo -e "${GREEN}Configuring port and hostname...${NC}"
-    sed -i "s|^const port.*|const port = process.env.PORT || $PORT;|" "$APP_PATH/app/src/config.js"
+    echo "🔧 Creating optimized systemd service for i7-12700..."
     
-    # Set up hostname
-    echo -e "${GREEN}Setting hostname to $HOSTNAME...${NC}"
-    
-    # Let user input other basic settings
-    read -p "Enter maximum number of participants per room (default: 100): " max_participants
-    if [ ! -z "$max_participants" ]; then
-        echo -e "${GREEN}Setting max participants to $max_participants...${NC}"
-        # This would require more complex logic to update the right section in config.js
-    fi
-    
-    echo -e "${GREEN}Basic configuration complete!${NC}"
-}
-
-function configure_codec_settings() {
-    echo -e "${BLUE}Configuring codec settings...${NC}"
-    
-    PS3=$'\n'"${CYAN}Select codec to optimize:${NC} "
-    options=(
-        "VP8"
-        "VP9"
-        "H264"
-        "Return to config menu"
-    )
-    select codec in "${options[@]}"
-    do
-        case $codec in
-            "VP8"|"VP9"|"H264")
-                echo -e "${GREEN}Optimizing $codec settings...${NC}"
-                read -p "Enter start bitrate in bps (e.g. 1000000): " start_bitrate
-                read -p "Enter min bitrate in bps (e.g. 15000000): " min_bitrate
-                read -p "Enter max bitrate in bps (e.g. 100000000): " max_bitrate
-                
-                # Implement the logic to update config.js for the selected codec
-                echo -e "${GREEN}$codec settings updated!${NC}"
-                break
-                ;;
-            "Return to config menu")
-                break
-                ;;
-            *)
-                echo -e "${RED}Invalid option${NC}"
-                ;;
-        esac
-    done
-}
-
-function configure_screen_sharing() {
-    echo -e "${BLUE}Configuring screen sharing settings...${NC}"
-    
-    # Get current values
-    current_fps=$(grep -A2 "screenSharingSettings" "$APP_PATH/app/src/config.js" | grep "frameRate" | awk '{print $2}' | tr -d ',')
-    current_bitrate=$(grep -A3 "screenSharingSettings" "$APP_PATH/app/src/config.js" | grep "maxBitrate" | awk '{print $2}' | tr -d ',')
-    
-    echo -e "${YELLOW}Current settings:${NC}"
-    echo -e "Frame rate: ${CYAN}$current_fps FPS${NC}"
-    echo -e "Max bitrate: ${CYAN}$current_bitrate bps${NC}"
-    
-    read -p "Enter desired FPS (30-120, recommended 60): " fps
-    read -p "Enter max bitrate in bps (15000000-180000000, recommended 18000000): " bitrate
-    
-    if [ ! -z "$fps" ]; then
-        sed -i "/screenSharingSettings/,/frameRate/ s/frameRate: [0-9]*,/frameRate: $fps,/" "$APP_PATH/app/src/config.js"
-        echo -e "${GREEN}Frame rate set to $fps FPS${NC}"
-    fi
-    
-    if [ ! -z "$bitrate" ]; then
-        sed -i "/screenSharingSettings/,/maxBitrate/ s/maxBitrate: [0-9]*,/maxBitrate: $bitrate,/" "$APP_PATH/app/src/config.js"
-        echo -e "${GREEN}Max bitrate set to $bitrate bps${NC}"
-    fi
-    
-    echo -e "${GREEN}Screen sharing settings updated!${NC}"
-}
-
-function configure_webrtc_transport() {
-    echo -e "${BLUE}Configuring WebRTC transport settings...${NC}"
-    
-    # Get current values
-    current_init_bitrate=$(grep -A10 "webRtcTransport" "$APP_PATH/app/src/config.js" | grep "initialAvailableOutgoingBitrate" | awk '{print $2}' | tr -d ',')
-    current_min_bitrate=$(grep -A11 "webRtcTransport" "$APP_PATH/app/src/config.js" | grep "minimumAvailableOutgoingBitrate" | awk '{print $2}' | tr -d ',')
-    current_max_bitrate=$(grep -A13 "webRtcTransport" "$APP_PATH/app/src/config.js" | grep "maxIncomingBitrate" | awk '{print $2}' | tr -d ',')
-    
-    echo -e "${YELLOW}Current settings:${NC}"
-    echo -e "Initial outgoing bitrate: ${CYAN}$current_init_bitrate bps${NC}"
-    echo -e "Minimum outgoing bitrate: ${CYAN}$current_min_bitrate bps${NC}"
-    echo -e "Maximum incoming bitrate: ${CYAN}$current_max_bitrate bps${NC}"
-    
-    read -p "Enter initial outgoing bitrate (recommended 800000000): " init_bitrate
-    read -p "Enter minimum outgoing bitrate (recommended 300000000): " min_bitrate
-    read -p "Enter maximum incoming bitrate (recommended 900000000): " max_bitrate
-    
-    if [ ! -z "$init_bitrate" ]; then
-        sed -i "/webRtcTransport/,/initialAvailableOutgoingBitrate/ s/initialAvailableOutgoingBitrate: [0-9]*,/initialAvailableOutgoingBitrate: $init_bitrate,/" "$APP_PATH/app/src/config.js"
-        echo -e "${GREEN}Initial outgoing bitrate set to $init_bitrate bps${NC}"
-    fi
-    
-    if [ ! -z "$min_bitrate" ]; then
-        sed -i "/webRtcTransport/,/minimumAvailableOutgoingBitrate/ s/minimumAvailableOutgoingBitrate: [0-9]*,/minimumAvailableOutgoingBitrate: $min_bitrate,/" "$APP_PATH/app/src/config.js"
-        echo -e "${GREEN}Minimum outgoing bitrate set to $min_bitrate bps${NC}"
-    fi
-    
-    if [ ! -z "$max_bitrate" ]; then
-        sed -i "/webRtcTransport/,/maxIncomingBitrate/ s/maxIncomingBitrate: [0-9]*,/maxIncomingBitrate: $max_bitrate,/" "$APP_PATH/app/src/config.js"
-        echo -e "${GREEN}Maximum incoming bitrate set to $max_bitrate bps${NC}"
-    fi
-    
-    echo -e "${GREEN}WebRTC transport settings updated!${NC}"
-}
-
-function optimize_performance_menu() {
-    echo -e "\n${BLUE}=== Optimize Performance ===${NC}"
-    PS3=$'\n'"${CYAN}Select an optimization option:${NC} "
-    options=(
-        "CPU Performance Mode"
-        "Memory Optimization"
-        "Network Stack Tuning"
-        "Service Optimization"
-        "Create optimized service file"
-        "Return to main menu"
-    )
-    select opt in "${options[@]}"
-    do
-        case $opt in
-            "CPU Performance Mode")
-                optimize_cpu_performance
-                break
-                ;;
-            "Memory Optimization")
-                optimize_memory
-                break
-                ;;
-            "Network Stack Tuning")
-                optimize_network
-                break
-                ;;
-            "Service Optimization")
-                optimize_service
-                break
-                ;;
-            "Create optimized service file")
-                create_optimized_service
-                break
-                ;;
-            "Return to main menu")
-                break
-                ;;
-            *)
-                echo -e "${RED}Invalid option${NC}"
-                ;;
-        esac
-    done
-}
-
-function optimize_cpu_performance() {
-    echo -e "${BLUE}Setting CPU governor to performance mode...${NC}"
-    
-    # Check if cpu_performance service exists
-    if systemctl list-unit-files | grep -q "cpu-performance.service"; then
-        echo -e "${YELLOW}CPU performance service already exists.${NC}"
-        sudo systemctl restart cpu-performance
-    else
-        echo -e "${GREEN}Creating CPU performance service...${NC}"
-        
-        # Create CPU performance service
-        cat > /tmp/cpu-performance.service << EOF
-[Unit]
-Description=Set CPU Governor to Performance Mode
-Before=$SERVICE_NAME.service
-
-[Service]
-Type=oneshot
-ExecStart=/bin/bash -c "echo performance | tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor"
-RemainAfterExit=yes
-
-[Install]
-WantedBy=multi-user.target
-EOF
-        
-        sudo mv /tmp/cpu-performance.service /etc/systemd/system/
-        sudo systemctl daemon-reload
-        sudo systemctl enable cpu-performance
-        sudo systemctl start cpu-performance
-    fi
-    
-    # Verify CPU governor settings
-    echo -e "${YELLOW}Current CPU governor settings:${NC}"
-    governors=$(cat /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor | sort | uniq -c)
-    echo -e "${CYAN}$governors${NC}"
-    
-    echo -e "${GREEN}CPU performance optimization complete!${NC}"
-}
-
-function optimize_memory() {
-    echo -e "${BLUE}Optimizing memory settings...${NC}"
-    
-    # Check current swappiness
-    current_swappiness=$(cat /proc/sys/vm/swappiness)
-    echo -e "${YELLOW}Current swappiness: ${CYAN}$current_swappiness${NC}"
-    
-    # Set optimal swappiness for real-time applications
-    echo -e "${GREEN}Setting swappiness to 10...${NC}"
-    sudo sysctl -w vm.swappiness=10
-    
-    # Make swappiness persistent
-    if ! grep -q "vm.swappiness" /etc/sysctl.conf; then
-        echo "vm.swappiness=10" | sudo tee -a /etc/sysctl.conf
-    else
-        sudo sed -i 's/vm.swappiness=.*/vm.swappiness=10/' /etc/sysctl.conf
-    fi
-    
-    # Set vfs_cache_pressure
-    echo -e "${GREEN}Setting vfs_cache_pressure to 50...${NC}"
-    sudo sysctl -w vm.vfs_cache_pressure=50
-    
-    # Make vfs_cache_pressure persistent
-    if ! grep -q "vm.vfs_cache_pressure" /etc/sysctl.conf; then
-        echo "vm.vfs_cache_pressure=50" | sudo tee -a /etc/sysctl.conf
-    else
-        sudo sed -i 's/vm.vfs_cache_pressure=.*/vm.vfs_cache_pressure=50/' /etc/sysctl.conf
-    fi
-    
-    # Clear cache
-    echo -e "${GREEN}Clearing cache...${NC}"
-    sudo sync && echo 3 | sudo tee /proc/sys/vm/drop_caches
-    
-    echo -e "${GREEN}Memory optimization complete!${NC}"
-}
-
-function optimize_network() {
-    echo -e "${BLUE}Optimizing network stack...${NC}"
-    
-    # Backup sysctl.conf
-    sudo cp /etc/sysctl.conf /etc/sysctl.conf.bak
-    echo -e "${YELLOW}Backed up /etc/sysctl.conf to /etc/sysctl.conf.bak${NC}"
-    
-    # Apply network optimizations
-    echo -e "${GREEN}Applying network optimizations...${NC}"
-    
-    # Create network optimization file
-    cat > /tmp/network-optimizations.conf << EOF
-# TCP Buffer Sizes
-net.core.rmem_max=16777216
-net.core.wmem_max=16777216
-net.core.rmem_default=1048576
-net.core.wmem_default=1048576
-net.ipv4.tcp_rmem=4096 87380 16777216
-net.ipv4.tcp_wmem=4096 65536 16777216
-
-# TCP Congestion Control
-net.ipv4.tcp_congestion_control=bbr
-net.core.default_qdisc=fq
-
-# Connection Performance
-net.core.netdev_max_backlog=2500
-net.ipv4.tcp_fastopen=3
-net.core.somaxconn=1024
-
-# UDP Buffer Size (important for WebRTC)
-net.ipv4.udp_rmem_min=4096
-net.ipv4.udp_wmem_min=4096
-EOF
-    
-    # Apply optimizations
-    sudo cp /tmp/network-optimizations.conf /etc/sysctl.d/99-network-performance.conf
-    sudo sysctl -p /etc/sysctl.d/99-network-performance.conf
-    
-    echo -e "${GREEN}Network optimization complete!${NC}"
-}
-
-function optimize_service() {
-    echo -e "${BLUE}Optimizing service settings...${NC}"
-    
-    # Check current service settings
-    if systemctl status $SERVICE_NAME | grep -q "nice="; then
-        current_nice=$(systemctl show $SERVICE_NAME | grep Nice | cut -d= -f2)
-        echo -e "${YELLOW}Current Nice value: ${CYAN}$current_nice${NC}"
-    else
-        echo -e "${YELLOW}No Nice value set.${NC}"
-    fi
-    
-    # Ask if user wants to apply optimized settings
-    read -p "Apply optimized service settings? (y/n): " apply_optimized
-    
-    if [[ "$apply_optimized" == "y" ]]; then
-        create_optimized_service
-    else
-        echo -e "${YELLOW}Service optimization skipped.${NC}"
-    fi
-}
-
-function create_optimized_service() {
-    echo -e "${BLUE}Creating optimized service file...${NC}"
-    
-    # Create optimized service file
+    # Create service file
     cat > /tmp/$SERVICE_NAME.service << EOF
 [Unit]
 Description=MiroTalk SFU Service
 After=network.target
 Wants=network-online.target
+# Add dependency on display manager for hardware acceleration
+After=display-manager.service
 
 [Service]
 Type=simple
@@ -455,272 +147,423 @@ WorkingDirectory=$APP_PATH
 # Environment variables
 Environment=PORT=$PORT
 Environment=NODE_ENV=production
+# Hardware acceleration for Intel (improved settings for 12th gen)
 Environment=LIBVA_DRIVER_NAME=iHD
 Environment=LIBVA_DRIVERS_PATH=/usr/lib/x86_64-linux-gnu/dri
+# Force Intel GPU for encoding/decoding
+Environment=INTEL_GPU_TOP=1
+Environment=VDPAU_DRIVER=va_gl
+# Enable hardware acceleration in Chromium-based browsers
+Environment=CHROME_FLAGS="--enable-features=VaapiVideoDecoder,VaapiVideoEncoder,CanvasOopRasterization --enable-gpu-rasterization --enable-zero-copy"
+# Enable more detailed logging if needed
+# Environment=DEBUG="mediasoup:*"
+# Force AV1 codec in supported browsers
+Environment=ENABLE_AV1=1
 
 # CPU and process scheduling optimizations
+# Run with high priority (-20 is highest, 19 is lowest)
 Nice=-15
+# Real-time I/O priority
 IOSchedulingClass=1
 IOSchedulingPriority=0
+# Use FIFO scheduling policy for real-time performance
 CPUSchedulingPolicy=fifo
 CPUSchedulingPriority=90
+# Optimized for 12th Gen Intel - use P-cores (first 8 cores are P-cores on i7-12700)
+# This ensures compute-intensive tasks run on P-cores rather than E-cores
+CPUAffinity=0-7
 
 # Memory optimizations
+# Lock process in memory to prevent swapping
 MemoryDenyWriteExecute=no
 LockPersonality=yes
+MemoryLock=yes
 
-# Start command with optimized Node.js flags
-ExecStart=/usr/bin/node --max-old-space-size=49152 --expose-gc --optimize-for-size app/src/Server.js
+# Set resource limits
+LimitNOFILE=1000000
+LimitNPROC=1000000
+
+# 1. First, set CPU governor with sudo (runs as root)
+ExecStartPre=/bin/bash -c "sudo sh -c 'echo performance | tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor'"
+# Ensure large UDP buffer sizes
+ExecStartPre=/bin/bash -c "sudo sysctl -w net.core.rmem_max=16777216 net.core.wmem_max=16777216"
+
+# Start command with optimized Node.js flags for media server
+ExecStart=/usr/bin/node --max-old-space-size=49152 --expose-gc --optimize-for-size --max-http-header-size=32768 --max-semi-space-size=512 --v8-pool-size=8 --nouse-idle-notification --max-http-header-size=81920 app/src/Server.js
 
 # Restart configuration
 Restart=always
 RestartSec=5
+# Give the service more time to stop gracefully
 TimeoutStopSec=30
+
+# Security enhancements (comment out if causing issues)
+# ProtectSystem=strict
+# PrivateTmp=true
+# RestrictRealtime=false
+# RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
 
 [Install]
 WantedBy=multi-user.target
 EOF
     
-    # Apply new service file
+    # Install the service
     sudo mv /tmp/$SERVICE_NAME.service /etc/systemd/system/
     sudo systemctl daemon-reload
+    sudo systemctl enable $SERVICE_NAME
     
-    echo -e "${GREEN}Optimized service file created!${NC}"
-    echo -e "${YELLOW}Note: The service has been configured but CPU governor management requires additional setup.${NC}"
-    echo -e "${YELLOW}Would you like to set up sudo permissions for CPU governor management?${NC}"
+    # Setup sudo permissions for CPU governor management
+    echo "🔧 Setting up sudo permissions for CPU governor management..."
     
-    read -p "Set up sudo permissions? (y/n): " setup_sudo
-    
-    if [[ "$setup_sudo" == "y" ]]; then
-        setup_sudo_permissions
-    else
-        echo -e "${YELLOW}Sudo permission setup skipped.${NC}"
-    fi
-}
-
-function setup_sudo_permissions() {
-    echo -e "${BLUE}Setting up sudo permissions for CPU governor management...${NC}"
-    
-    # Create sudoers file
     cat > /tmp/mirotalksfu << EOF
 nightfury ALL=(ALL) NOPASSWD: /bin/sh -c 'echo performance | tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor'
+nightfury ALL=(ALL) NOPASSWD: /usr/sbin/sysctl -w net.core.rmem_max=16777216 net.core.wmem_max=16777216
 EOF
     
-    # Apply sudoers file
     sudo mv /tmp/mirotalksfu /etc/sudoers.d/
     sudo chmod 0440 /etc/sudoers.d/mirotalksfu
     
-    echo -e "${GREEN}Sudo permissions configured!${NC}"
-    echo -e "${YELLOW}You can now use the optimized service with sudo for CPU governor management.${NC}"
-}
-
-function setup_hardware_acceleration() {
-    echo -e "${BLUE}Setting up hardware acceleration...${NC}"
+    echo "✅ Service setup complete!"
+    echo "📝 You can now start the service with: sudo systemctl start $SERVICE_NAME"
     
-    # Check if VA-API packages are installed
-    if ! dpkg -l | grep -q "intel-media-va-driver-non-free"; then
-        echo -e "${YELLOW}Intel media VA driver not found. Installing...${NC}"
-        sudo apt update
-        sudo apt install -y intel-media-va-driver-non-free vainfo intel-gpu-tools
-    else
-        echo -e "${GREEN}Intel media VA driver is already installed.${NC}"
+    echo -e "\n⚠️ Do you want to apply the optimized configuration for 4K streaming? (y/n)"
+    read apply_config
+    
+    if [[ "$apply_config" == "y" ]]; then
+        extract_and_apply_config
     fi
     
-    # Test VA-API
-    echo -e "${YELLOW}Testing VA-API support...${NC}"
-    LIBVA_DRIVER_NAME=iHD vainfo | head -n 20
-    
-    # Check if environment variable is set
-    if ! grep -q "LIBVA_DRIVER_NAME" /etc/systemd/system/$SERVICE_NAME.service; then
-        echo -e "${YELLOW}Adding hardware acceleration environment variables to service...${NC}"
-        sudo sed -i '/Environment=PORT/a Environment=LIBVA_DRIVER_NAME=iHD\nEnvironment=LIBVA_DRIVERS_PATH=/usr/lib/x86_64-linux-gnu/dri' /etc/systemd/system/$SERVICE_NAME.service
-        sudo systemctl daemon-reload
-    else
-        echo -e "${GREEN}Hardware acceleration environment variables already set in service.${NC}"
-    fi
-    
-    echo -e "${GREEN}Hardware acceleration setup complete!${NC}"
+    echo -e "\nPress Enter to continue..."
+    read
 }
 
-function show_logs_menu() {
-    echo -e "\n${BLUE}=== Show Logs ===${NC}"
-    PS3=$'\n'"${CYAN}Select a log option:${NC} "
+# ====================================
+# Configuration Functions
+# ====================================
+
+extract_custom_config() {
+    echo "🔍 Analyzing current configuration..."
+    
+    # Check if config.js exists
+    if [ ! -f "$APP_PATH/app/src/config.js" ]; then
+        echo "❌ Error: config.js not found. Cannot extract custom configuration."
+        return 1
+    fi
+    
+    # Create a temp directory
+    TEMP_DIR=$(mktemp -d)
+    
+    # Create a diff file between config.template.js and config.js
+    diff -u "$APP_PATH/app/src/config.template.js" "$APP_PATH/app/src/config.js" > "$TEMP_DIR/config.diff"
+    
+    if [ $? -eq 0 ]; then
+        echo "⚠️ No differences found between template and current config."
+        rm -rf $TEMP_DIR
+        return 0
+    fi
+    
+    echo "✅ Found custom configuration settings:"
+    grep -E "^[+]" "$TEMP_DIR/config.diff" | grep -v "^+++" | sed 's/^+//' | grep -v "^$"
+    
+    # Save important sections
+    echo "📋 Extracting key configuration settings..."
+    
+    # Extract IPv4 setting
+    IPV4_SETTING=$(grep -E "^[+]const IPv4" "$TEMP_DIR/config.diff" | sed 's/^+//')
+    
+    # Extract media codec settings
+    MEDIA_CODEC_SETTINGS=$(grep -E "^[+].*google.*bitrate" "$TEMP_DIR/config.diff" | sed 's/^+//')
+    
+    # Extract screen sharing settings
+    SCREEN_SETTINGS=$(grep -E "^[+].*screenSharingSettings" -A 5 "$TEMP_DIR/config.diff" | sed 's/^+//')
+    
+    # Extract WebRTC transport settings
+    TRANSPORT_SETTINGS=$(grep -E "^[+].*initialAvailableOutgoingBitrate|^[+].*minimumAvailableOutgoingBitrate|^[+].*maxIncomingBitrate" "$TEMP_DIR/config.diff" | sed 's/^+//')
+    
+    # Store extracted settings for later use
+    echo "$IPV4_SETTING" > "$TEMP_DIR/ipv4.setting"
+    echo "$MEDIA_CODEC_SETTINGS" > "$TEMP_DIR/codec.setting"
+    echo "$SCREEN_SETTINGS" > "$TEMP_DIR/screen.setting"
+    echo "$TRANSPORT_SETTINGS" > "$TEMP_DIR/transport.setting"
+    
+    echo "✅ Configuration extracted to $TEMP_DIR"
+    return 0
+}
+
+apply_custom_config() {
+    echo "🔧 Applying optimized configuration for 4K streaming..."
+    
+    # Check if config.js exists, if not copy from template
+    if [ ! -f "$APP_PATH/app/src/config.js" ]; then
+        echo "⚠️ Creating config.js from template..."
+        cp "$APP_PATH/app/src/config.template.js" "$APP_PATH/app/src/config.js"
+    fi
+    
+    # Backup current config
+    cp "$APP_PATH/app/src/config.js" "$APP_PATH/app/src/config.js.bak.$(date +%Y%m%d%H%M%S)"
+    echo "💾 Backed up current config.js"
+    
+    # Apply optimized 4K settings
+    
+    # Optimize IPv4 setting - keep current setting if exists
+    CURRENT_IPV4=$(grep -E "const IPv4 = " "$APP_PATH/app/src/config.js" | sed "s/const IPv4 = //")
+    if [ -n "$CURRENT_IPV4" ]; then
+        echo "📌 Keeping current IPv4 setting: $CURRENT_IPV4"
+    fi
+    
+    # Update video codec parameters for 4K
+    echo "🎬 Optimizing video codec parameters for 4K..."
+    sed -i "/video\/VP8/,/},/ s/'x-google-start-bitrate': [0-9]*,/'x-google-start-bitrate': 1000000,/" "$APP_PATH/app/src/config.js"
+    sed -i "/video\/VP8/,/},/ s/'x-google-min-bitrate': [0-9]*,/'x-google-min-bitrate': 15000000,/" "$APP_PATH/app/src/config.js"
+    sed -i "/video\/VP8/,/},/ s/'x-google-max-bitrate': [0-9]*,/'x-google-max-bitrate': 100000000,/" "$APP_PATH/app/src/config.js"
+    
+    # Update VP9 settings
+    sed -i "/video\/VP9.*profile-id': 2/,/},/ s/'x-google-start-bitrate': [0-9]*,/'x-google-start-bitrate': 3000000,/" "$APP_PATH/app/src/config.js"
+    sed -i "/video\/VP9.*profile-id': 2/,/},/ s/'x-google-min-bitrate': [0-9]*,/'x-google-min-bitrate': 18000000,/" "$APP_PATH/app/src/config.js"
+    sed -i "/video\/VP9.*profile-id': 2/,/},/ s/'x-google-max-bitrate': [0-9]*,/'x-google-max-bitrate': 150000000,/" "$APP_PATH/app/src/config.js"
+    
+    # Update H264 settings
+    sed -i "/video\/h264.*profile-level-id': '640032/,/},/ s/'x-google-start-bitrate': [0-9]*,/'x-google-start-bitrate': 2000000,/" "$APP_PATH/app/src/config.js"
+    sed -i "/video\/h264.*profile-level-id': '640032/,/},/ s/'x-google-min-bitrate': [0-9]*,/'x-google-min-bitrate': 15000000,/" "$APP_PATH/app/src/config.js"
+    sed -i "/video\/h264.*profile-level-id': '640032/,/},/ s/'x-google-max-bitrate': [0-9]*,/'x-google-max-bitrate': 150000000,/" "$APP_PATH/app/src/config.js"
+    
+    # Update baseline H264 settings
+    sed -i "/video\/h264.*profile-level-id': '42e01f/,/},/ s/'x-google-start-bitrate': [0-9]*,/'x-google-start-bitrate': 1000000,/" "$APP_PATH/app/src/config.js"
+    sed -i "/video\/h264.*profile-level-id': '42e01f/,/},/ s/'x-google-min-bitrate': [0-9]*,/'x-google-min-bitrate': 15000000,/" "$APP_PATH/app/src/config.js"
+    sed -i "/video\/h264.*profile-level-id': '42e01f/,/},/ s/'x-google-max-bitrate': [0-9]*,/'x-google-max-bitrate': 150000000,/" "$APP_PATH/app/src/config.js"
+    
+    # Update WebRTC transport settings
+    echo "🌐 Optimizing WebRTC transport settings..."
+    sed -i "/webRtcTransport/,/initialAvailableOutgoingBitrate/ s/initialAvailableOutgoingBitrate: [0-9]*,/initialAvailableOutgoingBitrate: 500000000,/" "$APP_PATH/app/src/config.js"
+    sed -i "/webRtcTransport/,/minimumAvailableOutgoingBitrate/ s/minimumAvailableOutgoingBitrate: [0-9]*,/minimumAvailableOutgoingBitrate: 150000000,/" "$APP_PATH/app/src/config.js"
+    sed -i "/webRtcTransport/,/maxIncomingBitrate/ s/maxIncomingBitrate: [0-9]*,/maxIncomingBitrate: 500000000,/" "$APP_PATH/app/src/config.js"
+    
+    # Update screen sharing settings
+    echo "🖥️ Optimizing screen sharing for 4K @ 60fps..."
+    sed -i "/screenSharingSettings/,/frameRate/ s/frameRate: [0-9]*,/frameRate: 60,/" "$APP_PATH/app/src/config.js"
+    sed -i "/screenSharingSettings/,/maxBitrate/ s/maxBitrate: [0-9]*,/maxBitrate: 220000000,/" "$APP_PATH/app/src/config.js"
+    
+    echo "✅ Applied 4K optimized configuration!"
+    echo "⚠️ You may need to restart the service to apply the changes."
+}
+
+extract_and_apply_config() {
+    echo "🔄 Extracting current config and applying optimized settings..."
+    
+    # Backup current config
+    if [ -f "$APP_PATH/app/src/config.js" ]; then
+        cp "$APP_PATH/app/src/config.js" "$APP_PATH/app/src/config.js.bak.$(date +%Y%m%d%H%M%S)"
+        echo "💾 Backed up current config.js"
+    else
+        echo "⚠️ No existing config.js found. Will create a new one."
+    }
+    
+    # Extract current custom settings if they exist
+    if [ -f "$APP_PATH/app/src/config.js" ]; then
+        extract_custom_config
+    fi
+    
+    # Apply optimized config for 4K
+    apply_custom_config
+    
+    echo "✅ Configuration updated successfully!"
+}
+
+# ====================================
+# Performance Optimization
+# ====================================
+
+optimize_for_4k() {
+    echo -e "\n=== Hardware Analysis & 4K Optimization ==="
+    
+    # Check CPU
+    echo "🔍 Checking CPU..."
+    CPU_MODEL=$(lscpu | grep "Model name" | cut -d: -f2 | sed 's/^[ \t]*//')
+    CPU_CORES=$(lscpu | grep "^CPU(s):" | cut -d: -f2 | sed 's/^[ \t]*//')
+    
+    echo "CPU: $CPU_MODEL"
+    echo "Cores: $CPU_CORES"
+    
+    # Check RAM
+    echo -e "\n🔍 Checking memory..."
+    MEM_TOTAL=$(free -h | grep "Mem:" | awk '{print $2}')
+    echo "Total memory: $MEM_TOTAL"
+    
+    # Check disk
+    echo -e "\n🔍 Checking disk space..."
+    DISK_FREE=$(df -h / | awk 'NR==2 {print $4}')
+    echo "Free space: $DISK_FREE"
+    
+    # Check network
+    echo -e "\n🔍 Checking network interfaces..."
+    ip -o addr show | grep 'inet ' | awk '{print $2, $4}' | sed 's/\/.*//'
+    
+    # Show current system settings
+    echo -e "\n📊 Current system settings:"
+    echo "CPU Governor: $(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor)"
+    echo "UDP Buffer Size: $(sysctl net.core.rmem_max | awk '{print $3}')"
+    
+    echo -e "\n📋 Recommended optimizations:"
+    
+    # Build list of recommendations
+    RECOMMENDATIONS=()
+    
+    RECOMMENDATIONS+=("Set CPU governor to performance mode")
+    RECOMMENDATIONS+=("Optimize network buffers for WebRTC traffic")
+    RECOMMENDATIONS+=("Update MiroTalk config for 4K @ 60fps")
+    
+    # Display recommendations
+    for i in "${!RECOMMENDATIONS[@]}"; do
+        echo " $((i+1)). ${RECOMMENDATIONS[$i]}"
+    done
+    
+    echo -e "\n⚠️ Apply these optimizations? (y/n)"
+    read apply_optimizations
+    
+    if [[ "$apply_optimizations" == "y" ]]; then
+        echo "🔧 Applying optimizations..."
+        
+        # Apply CPU governor
+        echo "⚙️ Setting CPU governor to performance mode..."
+        sudo sh -c 'echo performance | tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor'
+        
+        # Apply network optimizations
+        echo "🌐 Applying network optimizations..."
+        sudo cp /etc/sysctl.conf /etc/sysctl.conf.bak.$(date +%Y%m%d%H%M%S)
+        
+        # Create network optimization file
+        cat > /tmp/network-optimizations.conf << EOF
+# TCP Buffer Sizes
+net.core.rmem_max=16777216
+net.core.wmem_max=16777216
+net.core.rmem_default=1048576
+net.core.wmem_default=1048576
+net.ipv4.tcp_rmem=4096 87380 16777216
+net.ipv4.tcp_wmem=4096 65536 16777216
+
+# UDP buffer sizes for WebRTC
+net.ipv4.udp_rmem_min=8192
+net.ipv4.udp_wmem_min=8192
+
+# TCP Congestion Control
+net.ipv4.tcp_congestion_control=bbr
+net.core.default_qdisc=fq
+
+# Connection Performance
+net.core.netdev_max_backlog=2500
+net.ipv4.tcp_fastopen=3
+net.core.somaxconn=8192
+
+# Increase number of local ports available
+net.ipv4.ip_local_port_range=1024 65535
+
+# Increase the maximum socket receive buffer
+net.core.optmem_max=25165824
+
+# Further BBR optimizations
+net.ipv4.tcp_notsent_lowat=16384
+
+# Keeping connections alive - important for WebRTC
+net.ipv4.tcp_keepalive_time=60
+net.ipv4.tcp_keepalive_intvl=10
+net.ipv4.tcp_keepalive_probes=6
+
+# Disable slow start after idle
+net.ipv4.tcp_slow_start_after_idle=0
+EOF
+        
+        sudo cp /tmp/network-optimizations.conf /etc/sysctl.d/99-network-performance.conf
+        sudo sysctl -p /etc/sysctl.d/99-network-performance.conf
+        
+        # Apply MiroTalk config optimizations
+        extract_and_apply_config
+        
+        echo "✅ All optimizations applied!"
+    else
+        echo "🛑 Optimizations skipped."
+    fi
+    
+    echo -e "\nPress Enter to continue..."
+    read
+}
+
+# ====================================
+# Main Menu Function
+# ====================================
+
+show_main_menu() {
+    print_header
+    echo "📂 App Path: $APP_PATH"
+    echo "🔧 Service: $SERVICE_NAME"
+    echo "🔌 Port: $PORT"
+    echo ""
+    
+    # Check if the service is running
+    if systemctl is-active --quiet $SERVICE_NAME; then
+        echo "🟢 Service is running"
+    else
+        echo "🔴 Service is stopped"
+    fi
+    
+    echo -e "\nSelect an option:"
+    PS3=$'\n'"Enter choice [1-7]: "
     options=(
-        "Recent logs"
-        "Error logs only"
-        "Live log follow"
-        "Return to main menu"
+        "🟢 Start service"
+        "🔴 Stop service"
+        "🔄 Restart service (with git pull)"
+        "⚙️  Setup service"
+        "📋 View logs"
+        "🚀 Optimize for 4K"
+        "🔙 Exit"
     )
     select opt in "${options[@]}"
     do
         case $opt in
-            "Recent logs")
-                journalctl -u $SERVICE_NAME -n 50 --no-pager
+            "🟢 Start service")
+                start_service
                 break
                 ;;
-            "Error logs only")
-                journalctl -u $SERVICE_NAME -p err -n 50 --no-pager
+            "🔴 Stop service")
+                stop_service
                 break
                 ;;
-            "Live log follow")
-                echo -e "${YELLOW}Press Ctrl+C to stop following logs${NC}"
-                sleep 2
-                journalctl -u $SERVICE_NAME -f
+            "🔄 Restart service (with git pull)")
+                restart_service
                 break
                 ;;
-            "Return to main menu")
+            "⚙️  Setup service")
+                setup_service
                 break
                 ;;
-            *)
-                echo -e "${RED}Invalid option${NC}"
+            "📋 View logs")
+                view_logs
+                break
+                ;;
+            "🚀 Optimize for 4K")
+                optimize_for_4k
+                break
+                ;;
+            "🔙 Exit")
+                echo -e "\n👋 Goodbye!"
+                exit 0
+                ;;
+            *) 
+                echo "❌ Invalid option"
                 ;;
         esac
     done
 }
 
-function run_diagnostics() {
-    echo -e "${BLUE}Running diagnostics...${NC}"
-    
-    echo -e "\n${YELLOW}System Information:${NC}"
-    echo -e "${CYAN}$(uname -a)${NC}"
-    
-    echo -e "\n${YELLOW}CPU Information:${NC}"
-    echo -e "${CYAN}$(lscpu | grep 'Model name\|CPU(s)\|Thread\|CPU MHz')${NC}"
-    
-    echo -e "\n${YELLOW}Memory Information:${NC}"
-    echo -e "${CYAN}$(free -h)${NC}"
-    
-    echo -e "\n${YELLOW}Disk Space:${NC}"
-    echo -e "${CYAN}$(df -h | grep -v tmpfs)${NC}"
-    
-    echo -e "\n${YELLOW}Node.js Version:${NC}"
-    echo -e "${CYAN}$(node -v)${NC}"
-    
-    echo -e "\n${YELLOW}NPM Version:${NC}"
-    echo -e "${CYAN}$(npm -v)${NC}"
-    
-    echo -e "\n${YELLOW}Service Status:${NC}"
-    systemctl status $SERVICE_NAME --no-pager
-    
-    echo -e "\n${YELLOW}Network Ports:${NC}"
-    echo -e "${CYAN}$(ss -tulpn | grep node)${NC}"
-    
-    echo -e "\n${YELLOW}CPU Governor:${NC}"
-    echo -e "${CYAN}$(cat /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor | sort | uniq -c)${NC}"
-    
-    echo -e "\n${GREEN}Diagnostics complete!${NC}"
-}
+# ====================================
+# Main Loop
+# ====================================
 
-function edit_service_file() {
-    echo -e "${BLUE}Editing service file...${NC}"
-    sudo nano /etc/systemd/system/$SERVICE_NAME.service
-    
-    echo -e "${YELLOW}Reloading systemd daemon...${NC}"
-    sudo systemctl daemon-reload
-    
-    echo -e "${GREEN}Service file updated!${NC}"
-}
+# Check if running as root
+if [ "$EUID" -eq 0 ]; then
+  echo "❌ Please do not run this script directly as root"
+  exit 1
+fi
 
-function show_resource_usage() {
-    echo -e "${BLUE}Showing resource usage...${NC}"
-    
-    # Get PID
-    PID=$(pgrep -f "node.*Server.js")
-    
-    if [ -z "$PID" ]; then
-        echo -e "${RED}MiroTalk SFU is not running!${NC}"
-        return
-    fi
-    
-    echo -e "\n${YELLOW}CPU and Memory Usage:${NC}"
-    ps -p $PID -o %cpu,%mem,cmd
-    
-    echo -e "\n${YELLOW}Top Processes:${NC}"
-    top -b -n 1 | head -n 20
-    
-    echo -e "\n${YELLOW}Network Connections:${NC}"
-    netstat -tunapl | grep node
-    
-    echo -e "\n${YELLOW}Running for 5 seconds to track resource usage...${NC}"
-    mpstat 1 5
-    
-    echo -e "\n${GREEN}Resource usage check complete!${NC}"
-}
-
-function run_security_check() {
-    echo -e "${BLUE}Running security check...${NC}"
-    
-    echo -e "\n${YELLOW}Open Ports:${NC}"
-    sudo ss -tulpn | grep LISTEN
-    
-    echo -e "\n${YELLOW}Service User:${NC}"
-    grep "User=" /etc/systemd/system/$SERVICE_NAME.service
-    
-    echo -e "\n${YELLOW}File Permissions:${NC}"
-    ls -la $APP_PATH/app/src/config.js
-    
-    echo -e "\n${YELLOW}Checking for sensitive information in config:${NC}"
-    grep -i "secret\|password\|key" $APP_PATH/app/src/config.js | grep -v "\/\/"
-    
-    echo -e "\n${YELLOW}SSL Configuration:${NC}"
-    if [ -f "$APP_PATH/app/ssl/cert.pem" ]; then
-        echo -e "${GREEN}SSL certificate found!${NC}"
-        openssl x509 -in $APP_PATH/app/ssl/cert.pem -text -noout | grep "Not After"
-    else
-        echo -e "${RED}SSL certificate not found!${NC}"
-    fi
-    
-    echo -e "\n${GREEN}Security check complete!${NC}"
-}
-
-function check_and_create_service() {
-    if ! systemctl list-unit-files | grep -q "$SERVICE_NAME"; then
-        echo -e "${YELLOW}Creating systemd service...${NC}"
-        
-        cat > /tmp/$SERVICE_NAME.service << EOF
-[Unit]
-Description=MiroTalk SFU Service
-After=network.target
-
-[Service]
-Type=simple
-User=$(whoami)
-WorkingDirectory=$APP_PATH
-Environment=PORT=$PORT
-ExecStart=/usr/bin/npm start
-Restart=on-failure
-RestartSec=10
-
-[Install]
-WantedBy=multi-user.target
-EOF
-        
-        sudo mv /tmp/$SERVICE_NAME.service /etc/systemd/system/
-        sudo systemctl daemon-reload
-        sudo systemctl enable $SERVICE_NAME
-        echo -e "${GREEN}Service created and enabled${NC}"
-    fi
-}
-
-function show_status() {
-    echo -e "\n${BLUE}=== Service Status ===${NC}"
-    systemctl status $SERVICE_NAME --no-pager
-}
-
-function show_logs() {
-    journalctl -u $SERVICE_NAME -n 50 --no-pager
-}
-
-# Initial setup
-echo -e "${BLUE}Setting up MiroTalk SFU service...${NC}"
-check_and_create_service
-configure_sfu
-
-# Main loop
 while true; do
-    clear
-    show_usage
-    echo -e "\n${YELLOW}Press Enter to continue...${NC}"
-    read
+    show_main_menu
 done
-
