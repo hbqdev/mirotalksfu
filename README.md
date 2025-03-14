@@ -100,7 +100,7 @@
 <br/>
 
 - You can `directly join a room` by using link like:
-- https://sfu.mirotalk.com/join?room=test&roomPassword=0&name=mirotalksfu&audio=0&video=0&screen=0&notify=0&duration=unlimited
+- https://https://wave.hbqnexus.win//join?room=test&roomPassword=0&name=mirotalksfu&audio=0&video=0&screen=0&notify=0&duration=unlimited
 
     | Params       | Type           | Description               |
     | ------------ | -------------- | ------------------------- |
