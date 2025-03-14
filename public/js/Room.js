@@ -3245,10 +3245,10 @@ function loadSettingsFromLocalStorage() {
     screenFps.selectedIndex = localStorageSettings.screen_fps;
     
     // Set default video quality to Full HD (index 4)
-    videoQuality.selectedIndex = 4; // FULL HD (0=default, 1=qvga, 2=vga, 3=hd, 4=fhd, 5=2k, 6=4k)
+    videoQuality.selectedIndex = 0; // FULL HD (0=default, 1=qvga, 2=vga, 3=hd, 4=fhd, 5=2k, 6=4k)
     
     // Set default screen quality to 4K (index 4)
-    screenQuality.selectedIndex = 4; // 4K (0=default, 1=hd, 2=fhd, 3=2k, 4=4k)
+    screenQuality.selectedIndex = 3; // 4K (0=default, 1=hd, 2=fhd, 3=2k, 4=4k)
     
     BtnVideoObjectFit.selectedIndex = localStorageSettings.video_obj_fit;
     BtnVideoControls.selectedIndex = localStorageSettings.video_controls;
