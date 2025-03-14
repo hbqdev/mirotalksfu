@@ -38,8 +38,8 @@ class LocalStorage {
             mic_channel_count: 0, // 0: 1(mono) 1: 2 (stereo)
             mic_latency: 50, // ms
             mic_volume: 100, // %
-            video_fps: 0, // default 1280x768 30fps
-            screen_fps: 3, // default 1920x1080 15fps
+            video_fps: 0, // 0: max frame-per-second
+            screen_fps: 0, // 0: max frame-per-second
             broadcasting: false, // default false (one to many a/v streaming)
             lobby: false, // default false
             pitch_bar: true, // volume indicator
