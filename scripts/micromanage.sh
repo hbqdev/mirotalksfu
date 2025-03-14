@@ -356,7 +356,7 @@ extract_and_apply_config() {
         echo "💾 Backed up current config.js"
     else
         echo "⚠️ No existing config.js found. Will create a new one."
-    }
+    fi
     
     # Extract current custom settings if they exist
     if [ -f "$APP_PATH/app/src/config.js" ]; then
