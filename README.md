@@ -1,4 +1,4 @@
-<h1 align="center">MiroTalk SFU</h1>
+<h1 align="center">Nexus Wave</h1>
 
 <br />
 
@@ -161,7 +161,7 @@ Example:
 
 <br/>
 
-- Before running MiroTalk SFU, ensure you have `Node.js` and all [requirements](https://mediasoup.org/documentation/v3/mediasoup/installation/#requirements) installed. This project has been tested with Node version [18.X](https://nodejs.org/en/download).
+- Before running, ensure you have `Node.js` and all [requirements](https://mediasoup.org/documentation/v3/mediasoup/installation/#requirements) installed. This project has been tested with Node version [18.X](https://nodejs.org/en/download).
 
 - Requirements install example for `Ubuntu 24.04 LTS`
 
